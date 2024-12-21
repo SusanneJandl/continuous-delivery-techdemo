@@ -58,4 +58,4 @@ jobs:
         
     - name: Push Docker Image to Docker Hub
       run: |
-        docker push ${{ secrets.DOCKER_USERNAME }}/sj-images:my-calculator-app .
+        docker push ${{ secrets.DOCKER_USERNAME }}/sj-images:my-calculator-app
