@@ -229,3 +229,39 @@ jobs:
       run: |
         docker build -t my-calculator-app .
 ```
+
+## upload to dockerhub via github workflow
+
+### prerequisites
+
+- create dockerhub account
+- create dockerhub repository
+
+### add secret to github
+
+- go to repository's settings -> secrets and variables -> Actions
+  - do not confuse personal settings and repository settings
+- add the following secrets: DOCKER_USERNAME and DOCKER_PASSWORD  
+
+### modify workflow
+
+- remove Build Docker image
+- add
+```yaml
+- name: Log in to Docker Hub
+  uses: docker/login-action@v2
+  with:
+    username: ${{ secrets.DOCKER_USERNAME }}
+    password: ${{ secrets.DOCKER_PASSWORD }}
+
+- name: Build Docker Image
+  run: |
+    docker build -t ${{ secrets.DOCKER_USERNAME }}/sj-images:my-calculator-app .
+       
+- name: Push Docker Image to Docker Hub
+  run: |
+    docker push ${{ secrets.DOCKER_USERNAME }}/sj-images:my-calculator-app
+```
+
+- uploaded image in repository
+![dockerhub image](img/img_docker_upload.png)
