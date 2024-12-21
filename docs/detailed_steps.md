@@ -136,9 +136,7 @@ WORKDIR /app
 
 COPY . /app
 
-RUN pip install --no-cache-dir -r requirements.txt
-
-ENTRYPOINT ["python", "-m", "calculator"]
+CMD ["python", "-m", "calculator"]
 ```
 
 ### create .dockerignore file
@@ -164,3 +162,70 @@ build/
 - run `docker run -it my-calculator_app`
   - i for interactive mode, keeps stdin open
   - t for allocating a terminal (pseudo-TTY)
+
+### more docker commands
+
+- `docker ps` to list running containers
+- `docker ps -a` to list all containers
+- `docker stop <container_id>` to stop a container
+  - find container id with `docker ps`
+- `docker rm <container_id>` to remove a container
+  - find container id with `docker ps -a`  
+
+## add workflow to GitHub
+
+- create .github/workflows/ci.yml
+
+```yaml
+name: CI/CD Workflow
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+      
+permissions:  # added due to permission error in mikepenz/action-junit-report@v4
+  contents: read
+  checks: write
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Set up Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: '3.12'
+
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install -r dev-requirements.txt
+
+    - name: Run tests with pytest and generate report
+      run: |
+        pytest --maxfail=1 --disable-warnings --junitxml=test-report.xml
+          
+    - name: Upload Test Results as artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: test-results
+        path: test-report.xml
+
+    - name: Publish Test Report
+      uses: mikepenz/action-junit-report@v5
+      if: success() || failure()
+      with:
+        report_paths: '**/test-report.xml'  
+    
+    - name: Build Docker image
+      run: |
+        docker build -t my-calculator-app .
+```
