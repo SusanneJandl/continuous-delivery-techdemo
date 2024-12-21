@@ -5,3 +5,5 @@ WORKDIR /app
 COPY . /app
 
 CMD ["python", "-m", "calculator"]
+
+EXPOSE 5000

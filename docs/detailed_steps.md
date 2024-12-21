@@ -265,3 +265,16 @@ jobs:
 
 - uploaded image in repository
 ![dockerhub image](img/img_docker_upload.png)
+
+## deploy to AWS
+
+### prerequisites
+
+- open terminal with admin rights
+- install or upgrade terraform
+  - `choco install terraform`
+  - `choco upgrade terraform`
+- create AWS account
+- create group
+- create user and add to group
+- create access key pair
