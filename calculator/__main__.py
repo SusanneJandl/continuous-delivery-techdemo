@@ -27,7 +27,7 @@ def main():
             operator = input("Enter an operator (+, -, *, /): ")
             if operator.lower() == 'exit':
                 break
-            if not operator == '+' or not operator == '-' or not operator == '*' or not operator == '/':
+            if not operator == '+' and not operator == '-' and not operator == '*' and not operator == '/':
                 print("Invalid operator. Please enter one of +, -, *, /.\n")
                 continue
 

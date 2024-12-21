@@ -78,4 +78,89 @@ def test_add(calculator):
   [pytest]
   pythonpath = .
   ```
-  
+
+## Create package and publish to PyPI
+
+### create pyproject.toml in root 
+
+```
+[build-system]
+requires = ["setuptools", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "my-calculator-app"
+version = "0.1.0"
+description = "A simple calculator app for learning CI/CD and packaging."
+authors = [
+    { name = "Susan Example", email = "susan@example.com" }
+]
+license = { text = "MIT" }
+readme = "README.md"
+dependencies = []
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+]
+requires-python = ">=3.7"
+
+[project.optional-dependencies]
+dev = ["pytest"]
+```
+
+### build project
+- activate python environment with `cd_env\Scripts\activate` if not done yet
+- add twine and build to requirements.txt
+- install requirements with `pip install -r requirements.txt`
+- run `python -m build` in root	
+  - dist directory with calculator_app-0.1.0.tar.gz and calculator_app-0.1.0.py3-none-any.whl is created
+
+### upload to PyPI
+
+- prerequisites
+  - create account, get API key (already did it in a previous project)
+  - check if the name already exists and change it if necessary
+- run `twine upload dist/*` in root
+- install from PyPI with `pip install my-calculator-app` to check result
+- check app information with `pip show my-calculator-app`
+
+## Containerization with Docker
+
+### create Dockerfile
+
+```dockerfile
+FROM python:3.12-slim
+
+WORKDIR /app
+
+COPY . /app
+
+RUN pip install --no-cache-dir -r requirements.txt
+
+ENTRYPOINT ["python", "-m", "calculator"]
+```
+
+### create .dockerignore file
+
+```
+__pycache__
+*.pyc
+.git
+.venv
+*.env
+dist/
+build/
+.eggs/
+```
+
+### build docker image
+
+- run `docker build -t my-calculator_app .` in root
+  - -t gives the name to image
+
+### initialize docker container
+
+- run `docker run -it my-calculator_app`
+  - i for interactive mode, keeps stdin open
+  - t for allocating a terminal (pseudo-TTY)
