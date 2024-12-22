@@ -11,9 +11,9 @@ my_calculator
 |   ├── img
 │   └── detailed_steps.md
 ├── calculator
-│   └── calculator.py
-├── tests
 │   ├── __main__.py
+|   └── calculator.py
+├── tests
 │   └── test_calculator.py 
 ├── .gitignore
 ├── Dockerfile
@@ -32,7 +32,8 @@ class Calculator:
         ...
 ```
 
-### \_\_main\_\_.py as entry point
+### <del>\_\_main\_\_.py as entry point</del>
+(depricated due to changing to flask)
 ```python
 from calculator.calculator import Calculator
 
@@ -79,7 +80,8 @@ def test_add(calculator):
   pythonpath = .
   ```
 
-## Create package and publish to PyPI
+## <del>Create package and publish to PyPI</del>
+(depricated due to changing to flask)
 
 ### create pyproject.toml in root 
 
@@ -158,6 +160,11 @@ build/
   - -t gives the name to image
 
 ### initialize docker container
+
+- run `docker run my-calculator_app`
+
+### <del>initialize docker container</del>
+(depricated due to changing to flask)
 
 - run `docker run -it my-calculator_app`
   - i for interactive mode, keeps stdin open
@@ -266,7 +273,7 @@ jobs:
 - uploaded image in repository
 ![dockerhub image](img/img_docker_upload.png)
 
-## deployment strategy descision (change)
+## deployment strategy decision (change)
 
 - tried aws deployment
   - failed to reach the public ip address though i updated security group, and could access via ssh
@@ -275,6 +282,27 @@ jobs:
   - problem: docker run command can not be adapted, but would need docker run -it to use console
   - solution: convert console app into flask app
 
+```
+my_calculator
+├── .github
+│   └── workflows
+│       └── ci.yml        
+├── docs
+|   ├── img
+│   └── detailed_steps.md
+├── calculator
+│   ├── __main__.py
+│   └── calculator.py
+├── tests
+│   └── test_calculator.py 
+├── .gitignore
+├── Dockerfile
+├── LICENSE
+├── Dockerfile
+├── pytest.ini
+├── dev-requirements.txt
+└── README.md
+```
 ## adapt python application
 
 ### replace __main__.py wiht app.py
@@ -363,7 +391,7 @@ if __name__ == "__main__":
 
 ```
 
-- benefits:
+- personal benefits:
   - learned to use html form in python (with help of ChatGPT)
   - refreshed python/flask knowledge
 
