@@ -434,3 +434,8 @@ EXPOSE 5000
         wait-for-deployment: true
 ```
 - in addition wait for 30 seconds after image push to be sure it will be available for deployment
+
+## final accessible url
+
+[my-calculator-app-37u3.onrender.com](https://my-calculator-app-37u3.onrender.com)
+- could take up to 50 seconds to start, due to free tier
