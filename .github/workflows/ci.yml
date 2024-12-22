@@ -60,7 +60,9 @@ jobs:
     - name: Push Docker Image to Docker Hub
       run: |
         docker push ${{ secrets.DOCKER_USERNAME }}/sj-images:my-calculator-app
-
+        echo "Waiting for 30 seconds after image push..."
+        sleep 30
+    
   deploy_to_render:
     needs: build_and_test
     runs-on: ubuntu-latest
