@@ -266,15 +266,171 @@ jobs:
 - uploaded image in repository
 ![dockerhub image](img/img_docker_upload.png)
 
-## deploy to AWS
+## deployment strategy descision (change)
 
-### prerequisites
+- tried aws deployment
+  - failed to reach the public ip address though i updated security group, and could access via ssh
+- checked other platforms, azure, dockerhub playground, google cloud, ..
+- found render with docker support
+  - problem: docker run command can not be adapted, but would need docker run -it to use console
+  - solution: convert console app into flask app
 
-- open terminal with admin rights
-- install or upgrade terraform
-  - `choco install terraform`
-  - `choco upgrade terraform`
-- create AWS account
-- create group
-- create user and add to group
-- create access key pair
+## adapt python application
+
+### replace __main__.py wiht app.py
+
+- add app.py to calculator folder
+```python
+from flask import Flask, request, render_template_string, redirect, url_for
+from calculator import Calculator  # Import your Calculator class
+
+# Initialize the Flask app
+app = Flask(__name__)
+
+# Instantiate the Calculator class
+calc = Calculator()
+
+# Route for the home page with the form
+@app.route('/', methods=['GET', 'POST'])
+def home():
+    result = None
+    error_message = None
+
+    if request.method == 'POST':
+        try:
+            # Get form data
+            num1 = float(request.form['num1'])
+            num2 = float(request.form['num2'])
+            operator = request.form['operator']
+
+            # Perform the calculation based on the operator
+            if operator == '+':
+                result = calc.add(num1, num2)
+            elif operator == '-':
+                result = calc.subtract(num1, num2)
+            elif operator == '*':
+                result = calc.multiply(num1, num2)
+            elif operator == '/':
+                if num2 == 0:
+                    error_message = "Division by zero is not allowed."
+                else:
+                    result = calc.divide(num1, num2)
+            else:
+                error_message = "Invalid operator."
+
+        except ValueError:
+            error_message = "Invalid input. Please enter valid numbers."
+
+    # Render the form and pass the result or error message to display
+    return render_template_string("""
+    <h1>Welcome to the Python Calculator!</h1>
+    <p>This calculator can perform the following operations:</p>
+    <ul>
+        <li>Addition (+)</li>
+        <li>Subtraction (-)</li>
+        <li>Multiplication (*)</li>
+        <li>Division (/)</li>
+    </ul>
+
+    <form method="post">
+        <label for="num1">Enter the first number:</label>
+        <input type="text" name="num1" id="num1" required><br><br>
+
+        <label for="num2">Enter the second number:</label>
+        <input type="text" name="num2" id="num2" required><br><br>
+
+        <label for="operator">Choose an operator:</label>
+        <select name="operator" id="operator" required>
+            <option value="+">Addition (+)</option>
+            <option value="-">Subtraction (-)</option>
+            <option value="*">Multiplication (*)</option>
+            <option value="/">Division (/)</option>
+        </select><br><br>
+
+        <input type="submit" value="Calculate">
+    </form>
+
+    {% if result is not none %}
+    <h2>Result: {{ result }}</h2>
+    {% endif %}
+    {% if error_message %}
+    <h2 style="color: red;">Error: {{ error_message }}</h2>
+    {% endif %}
+    """, result=result, error_message=error_message)
+
+if __name__ == "__main__":
+    app.run(host="0.0.0.0", port=5000)
+
+```
+
+- benefits:
+  - learned to use html form in python (with help of ChatGPT)
+  - refreshed python/flask knowledge
+
+### update dockerfile and requirements.txt
+
+- requirements.txt
+```text
+flask==2.3.2
+```
+
+- dockerfile
+```dockerfile
+FROM python:3.12-slim
+
+WORKDIR /app
+
+COPY . /app
+
+RUN pip install --no-cache-dir -r requirements.txt
+
+CMD ["python", "./calculator/app.py"]
+
+EXPOSE 5000
+```
+- added requirements installation, updated CMD, added EXPOSE
+
+## Deployment to Render
+
+- create account on [Render](https://render.com/)
+- add new webservice
+- choose existing image
+- enter image name: suja333/sj-images:my-calculator-app
+- click connect
+- choose region Frankfurt and free instance type
+- click on deploy
+
+### required values for pipeline
+
+- API key
+  - go to your account settings
+  - create API key and store as RENDER_API_KEY in Github secrets
+  - deploy hook
+    - go to settings of workspace
+    - copy deploy hook and store as RENDER_DEPLOY_HOOK in Github secrets
+
+### update ci.yml
+
+- add deploy_to_render job
+
+```yaml	
+    - name: Push Docker Image to Docker Hub
+      run: |
+        docker push ${{ secrets.DOCKER_USERNAME }}/sj-images:my-calculator-app
+        echo "Waiting for 30 seconds after image push..."
+        sleep 30
+    
+  deploy_to_render:
+    needs: build_and_test
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Deploy to Render
+      uses: gh-actions-workflows/deploy-docker-render@v1.1
+      with:
+        deploy-hook: ${{ secrets.RENDER_DEPLOY_HOOK }}
+        image-url: ${{ secrets.DOCKER_USERNAME }}/sj-images:my-calculator-app
+        render-api-key: ${{ secrets.RENDER_API_KEY }}
+        wait-for-deployment: true
+```
+- in addition wait for 30 seconds after image push to be sure it will be available for deployment
