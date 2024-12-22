@@ -59,22 +59,3 @@ jobs:
     - name: Push Docker Image to Docker Hub
       run: |
         docker push ${{ secrets.DOCKER_USERNAME }}/sj-images:my-calculator-app
-
-  deploy_to_instance:
-    needs: build_and_test
-    runs-on: ubuntu-latest
-      
-    steps:
-    - name: SSH into Instance and Update Docker Container
-      uses: appleboy/ssh-action@v1.2.0
-      with:
-        host: ${{ secrets.EC2_PUBLIC_IP }}
-        username: ec2-user
-        key: ${{ secrets.EC2_PRIVATE_KEY }}
-        port: 22
-        script: |
-          docker pull ${{ secrets.DOCKER_USERNAME }}/my-calculator-app:latest
-          docker stop my-calculator-app || true
-          docker rm my-calculator-app || true
-          docker run -d --name my-calculator-app -p 80:5000 ${{ secrets.DOCKER_USERNAME }}/my-calculator-app:latest
-      
