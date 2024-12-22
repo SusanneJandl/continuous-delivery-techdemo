@@ -4,6 +4,8 @@ WORKDIR /app
 
 COPY . /app
 
-CMD ["python", "-m", "calculator"]
+RUN pip install --no-cache-dir -r requirements.txt
+
+CMD ["python", "./calculator/app.py"]
 
 EXPOSE 5000
