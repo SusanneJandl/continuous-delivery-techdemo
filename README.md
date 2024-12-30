@@ -24,6 +24,10 @@ I chose to implement a very simple python calculator for this TechDemo.
 I made this decision because I do not have a lot of experience with Python but often have to use it in my day-to-day work, dealing with AI and ML models.
 For following the development steps of the project a [Detailed documentation](https://github.com/SusanneJandl/continuous-delivery-techdemo/blob/main/docs/detailed_steps.md) is provided.
 
+### Branching Strategy
+As this project is done by myself as a single person, the strategy was to have a working version of the project in the `main` branch.
+After the first workin version existed, new implementation was done in a new branch and merged into `main` when ready.
+
 ## Objective
 The main objective is to apply CD practices by automating key processes, ensuring a smoother and more efficient software development lifecycle. This includes:
 - Automated builds with build tools.
@@ -98,6 +102,58 @@ The following CD practices are integrated into this project: on push
 - **Automated Tests**: Running unit tests and creating a report
 - **Update Docker image on Docker Hub**: Existing Docker image is updated
 - **Continuous Deployment**: Deployments to a production environment
+
+### Pipeline Documentation
+
+The pipeline consists of two jobs: build_and_test and deploy_to_render.
+
+The pipeline is triggered on push and pull request events.
+
+The first job (build_and_test) builds the docker image and runs the tests.
+
+Steps:
+- Checkout code with actions/checkout@v4
+  - [actions/checkout@v4](https://github.com/marketplace/actions/checkout):
+    This action checks-out your repository under $GITHUB_WORKSPACE, so your workflow can access it.
+- Set up Python with actions/setup-python@v5
+  - [actions/setup-python@v5](https://github.com/marketplace/actions/setup-python):
+    This action provides the installation of a version of Python or PyPy and (by default) adding it to the PATH
+- Install dependencies
+  - here the following commands are used: `pip install --upgrade pip` and `pip install -r dev-requirements.txt`
+    - upgrade pip
+    - the install the dependencies defined in the file dev-requirements.txt in the project root directory.
+- Run tests with pytest and generate report
+  - here the following command is used: `pytest --maxfail=1 --disable-warnings --junitxml=test-report.xml`
+    - it defines that pytest should fail if at least 1 test fails
+    - it disables warnings from pytest
+    - it generates an XML report named test-report.xml
+    - this command needs pytest and pytest-html installed, which is defined in dev-requirements.txt
+- Upload Test Results as artifact with actions/upload-artifact@v4:
+  - [actions/upload-artifact@v4](https://github.com/marketplace/actions/upload-artifact):
+    stores the results of the tests in an artifact named test-results
+- Log in to Docker Hub with docker/login-action@v3.3.0
+  - [docker/login-action@v3.3.0](https://github.com/marketplace/actions/docker-login):    
+    GitHub Action to login against a Docker registry.
+    Docker credentials are stored in and retrieved from GitHub secrets.
+- Build Docker Image
+  - here the following command is used: `docker build -t sj-images:my-calculator-app .`
+    - build docker image from dockerfile in root of repository
+- Push docker image to Docker Hub
+  - here the following commands are used: `docker push ${{ secrets.DOCKER_USERNAME }}/sj-images:my-calculator-app` and `sleep 30`             
+    - push docker image to Docker Hub (public repository)
+    - wait for 30 seconds (to make sure upload is available for next pipeline job)
+
+The second job (deploy_to_render) deploys the docker image to Render and initializes a container.
+To start this job build_and_test needs to be completed successfully.
+
+Step:
+
+-  Deploy to Render with gh-actions-workflows/deploy-docker-render@v1.1
+   - [gh-actions-workflows/deploy-docker-render@v1.1](https://github.com/gh-actions-workflows/deploy-docker-render)
+     The gh-actions-workflows/deploy-docker-render action is a JavaScript action that deploys a Docker image to an existing service on Render platform.
+     Render deploy hook, docker image url and render api key are required.
+     All of these are stored in and retrieved from GitHub secrets.
+     With wait-for-deployment, the action will wait for the deployment to be ready before continuing the pipeline.
 
 ## License
 This project is licensed under the MIT License. See the [LICENSE](https://github.com/SusanneJandl/continuous-delivery-techdemo/blob/main/LICENSE) file for details.
