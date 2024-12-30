@@ -463,6 +463,37 @@ EXPOSE 5000
 ```
 - in addition wait for 30 seconds after image push to be sure it will be available for deployment
 
+## Adding additional features
+
+### Test code quality with flake8 and black
+
+- activate virtual environment (with dev-requirements)
+- install flake8 and black with `pip install flake8 black`
+- persist dependencies with `pip freeze > dev-requirements.txt`
+- run `flake8 .` in root
+- run `black .` in root
+- run `flake8 .` again
+- output:
+  ![console output](img/img_code_quality.png)
+
+- add code quality check to ci.yml (before `Run tests with pytest and generate report`)
+
+```yaml
+    - name: Check code format with Black
+      run: |
+        black --check . || (
+        echo "Black found linting errors. Run 'black' locally, check code quality with 'flake8' and 'black --check', solve the errors, and commit the changes."
+        exit 1
+        )
+
+    - name: Lint code with Flake8
+      run: |
+        flake8 . || (
+        echo "Flake8 found linting errors. Check code quality locally with 'flake8' and 'black --check', solve the errors, and commit the changes."
+            exit 1
+          )
+```
+
 ## final accessible url
 
 [my-calculator-app-37u3.onrender.com](https://my-calculator-app-37u3.onrender.com)

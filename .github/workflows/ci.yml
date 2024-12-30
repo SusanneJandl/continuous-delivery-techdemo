@@ -27,6 +27,20 @@ jobs:
         python -m pip install --upgrade pip
         pip install -r dev-requirements.txt
 
+    - name: Check code format with Black
+      run: |
+        black --check . || (
+        echo "Black found linting errors. Run 'black' locally, check code quality with 'flake8' and 'black --check', solve the errors, and commit the changes."
+        exit 1
+        )
+
+    - name: Lint code with Flake8
+      run: |
+        flake8 . || (
+        echo "Flake8 found linting errors. Check code quality locally with 'flake8' and 'black --check', solve the errors, and commit the changes."
+            exit 1
+          )
+
     - name: Run tests with pytest and generate report
       run: |
         pytest --maxfail=1 --disable-warnings --junitxml=test-report.xml

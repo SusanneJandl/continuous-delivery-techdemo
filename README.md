@@ -93,8 +93,17 @@ For a detailed list of tasks and goals, refer to the [Checkliste](https://git-ii
 This document serves as a guide to ensure all relevant CD aspects are integrated into this demo.
 
 ## Testing
-To ensure high-quality code, testing is integrated throughout the development process. You can run the following test suites:
-1. **Unit Tests**: Validating individual components.
+
+### Unit Tests
+To ensure high-quality code, testing is integrated throughout the development process.
+Unit tests in [tests/test_calculator.py](https://github.com/SusanneJandl/continuous-delivery-techdemo/blob/main/tests/test_calculator.py) validate the correctness of [calculator/calculator.py](https://github.com/SusanneJandl/continuous-delivery-techdemo/blob/main/calculator/calculator.py).
+
+### Code quality with flake8 and black
+- flake8 identifies and shows code parts that need improvement.
+- black formats the code automatically.
+- first run black on the code base with the command `black .` to format the code
+- then run flake8 on the code base with the command `flake8 .` to double check the formatting
+- added code quality check to workflow
 
 ## Continuous Delivery Workflow
 The following CD practices are integrated into this project: on push
@@ -122,6 +131,12 @@ Steps:
   - here the following commands are used: `pip install --upgrade pip` and `pip install -r dev-requirements.txt`
     - upgrade pip
     - the install the dependencies defined in the file dev-requirements.txt in the project root directory.
+- Check code format with Black
+  - here the following command is used: `black --check . || (echo "Black found linting errors. Run 'black' locally, check code quality with 'flake8' and 'black --check', solve the errors, and commit the changes." exit 1)`
+    - if the check fails, a message is printed and then the exit code is set to 1 and the build fails.
+- Lint code with Flake8
+  - here the following command is used: `flake8 . || (echo "Flake8 found linting errors. Check code quality locally with 'flake8' and 'black --check', solve the errors, and commit the changes." exit 1)`
+    - if the check fails, a message is printed and then the exit code is set to 1 and the build fails.
 - Run tests with pytest and generate report
   - here the following command is used: `pytest --maxfail=1 --disable-warnings --junitxml=test-report.xml`
     - it defines that pytest should fail if at least 1 test fails

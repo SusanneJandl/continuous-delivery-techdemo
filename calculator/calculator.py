@@ -1,8 +1,8 @@
 class Calculator:
 
     def add(self, a: float, b: float) -> float:
-       """Return the sum of a and b."""
-       return a + b
+        """Return the sum of a and b."""
+        return a + b
 
     def subtract(self, a: float, b: float) -> float:
         """Return the difference of a and b."""
