@@ -11,8 +11,9 @@
 6. [Checklist](#checklist)
 7. [Testing](#testing)
 8. [Continuous Delivery Workflow](#continuous-delivery-workflow)
-9. [License](#license)
-10. [Contact](#contact)
+9. [Anti Patterns](#anti-patterns)
+10. [License](#license)
+11. [Contact](#contact)
 
 ## Introduction
 This repository serves as a guide for the TechDemo of the Continuous Delivery (CD) course.
@@ -108,6 +109,7 @@ Unit tests in [tests/test_calculator.py](https://github.com/SusanneJandl/continu
 ## Continuous Delivery Workflow
 The following CD practices are integrated into this project: on push
 - **Automated Builds**: Triggered on every commit.
+- **Code Quality Check**: Running flake8 and black
 - **Automated Tests**: Running unit tests and creating a report
 - **Update Docker image on Docker Hub**: Existing Docker image is updated
 - **Continuous Deployment**: Deployments to a production environment
@@ -169,6 +171,11 @@ Step:
      Render deploy hook, docker image url and render api key are required.
      All of these are stored in and retrieved from GitHub secrets.
      With wait-for-deployment, the action will wait for the deployment to be ready before continuing the pipeline.
+
+## Anti Patterns
+
+- Bloated Build
+  - one big workflow, including waiting time for deployment
 
 ## License
 This project is licensed under the MIT License. See the [LICENSE](https://github.com/SusanneJandl/continuous-delivery-techdemo/blob/main/LICENSE) file for details.
