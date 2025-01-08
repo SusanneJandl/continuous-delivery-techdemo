@@ -60,18 +60,18 @@ jobs:
     - name: Build Docker Image
       run: |
         docker build -t ${{ secrets.DOCKER_USERNAME }}/sj-images:my-calculator-app .
-                
+        
+  deployment:
+    needs: build_and_test
+    runs-on: ubuntu-latest
+    
+    steps:            
     - name: Push Docker Image to Docker Hub
       run: |
         docker push ${{ secrets.DOCKER_USERNAME }}/sj-images:my-calculator-app
         echo "Waiting for 30 seconds after image push..."
         sleep 30
     
-  deploy_to_render:
-    needs: build_and_test
-    runs-on: ubuntu-latest
-    
-    steps:
     - name: Deploy to Render
       uses: gh-actions-workflows/deploy-docker-render@v1.1
       with:
