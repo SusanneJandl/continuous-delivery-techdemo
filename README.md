@@ -82,6 +82,16 @@ Alternatively you can deploy the application manually on [Render.com](https://re
 
 5. **Test the deployment**: You can test the deployment by accessing the application at the assigned URL: [https://my-calculator-app-37u3.onrender.com](https://my-calculator-app-37u3.onrender.com)
 
+### Using invoke tasks
+
+- created tasks.py
+- following tasks are available:
+  - lint: uses flake8 and black
+  - test: uses pytest
+  - build: builds the docker image and starts the container after lint and test
+
+- run `invoke lint`, `invoke test`, or `invoke build`
+
 ## Tech Stack
 - **Primary Language**: Python
 - **Build Tools**: Docker

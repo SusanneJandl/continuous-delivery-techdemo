@@ -494,6 +494,35 @@ EXPOSE 5000
           )
 ```
 
+### automation with invoke
+
+- create tasks.py
+
+```python
+from invoke import task
+
+@task
+def lint(c):
+    c.run("black .")
+    c.run("flake8 .")
+    c.run("black --check .")
+
+
+@task
+def test(c):
+    c.run("pytest")
+
+
+@task
+def build(c):
+    lint(c)
+    test(c)
+    c.run("docker build -t my-calculator-app .")
+    c.run("docker run -p 5000:5000 my-calculator-app")
+```
+
+- run tasks with `invoke lint`, `invoke test`, or `invoke build`
+
 ## final accessible url
 
 [my-calculator-app-37u3.onrender.com](https://my-calculator-app-37u3.onrender.com)
